@@ -1,20 +1,29 @@
-import { Telegraf } from "telegraf";
-
-const bot = new Telegraf(process.env.BOT_TOKEN);
-
-// simple commands
-bot.start((ctx) => ctx.reply("👋 Hello! Your bot is live on Vercel!"));
-bot.hears("hi", (ctx) => ctx.reply("Hey Ayu 👋"));
-bot.on("text", (ctx) => ctx.reply("You said: " + ctx.message.text));
+import fetch from "node-fetch";
 
 export default async function handler(req, res) {
-  try {
-    if (req.method === "POST") {
-      await bot.handleUpdate(req.body);
+  const BOT_TOKEN = process.env.BOT_TOKEN;
+  const TELEGRAM_API = https://api.telegram.org/bot${BOT_TOKEN};
+
+  if (req.method === "POST") {
+    const body = req.body;
+
+    if (body.message) {
+      const chatId = body.message.chat.id;
+      const text = body.message.text;
+
+      // Simple reply
+      let reply = "I’m alive on Vercel 🚀";
+      if (text === "/start") reply = "Hello! This bot is running on Vercel 🚀";
+
+      await fetch(${TELEGRAM_API}/sendMessage, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, text: reply }),
+      });
     }
-    res.status(200).send("OK");
-  } catch (err) {
-    console.error("Bot error:", err);
-    res.status(500).send("Internal Server Error");
+
+    return res.status(200).send("OK");
   }
+
+  return res.status(200).json({ status: "Bot is running fine!" });
 }
